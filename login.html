@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yantriki — Login</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#F2F4F8;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.logo{text-align:center;margin-bottom:28px}
+.logo .wordmark{font-size:22px;font-weight:600;color:#1A1F2E;letter-spacing:-.02em}
+.logo .sub{font-size:12px;color:#9CA3AF;margin-top:4px;letter-spacing:.04em;text-transform:uppercase}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.field label{font-size:12px;font-weight:500;color:#6B7280}
+.field input{font-family:'Inter',sans-serif;font-size:14px;color:#1A1F2E;background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:10px 13px;outline:none;transition:border-color .12s,box-shadow .12s}
+.field input:focus{border-color:#E8720C;box-shadow:0 0 0 3px rgba(232,114,12,.1)}
+.btn{width:100%;padding:11px;background:#E8720C;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:background .13s;margin-top:8px}
+.btn:hover{background:#C45E08}
+.btn:disabled{background:#F3A96A;cursor:not-allowed}
+.error{background:#FEF2F2;border:1px solid #FECACA;color:#DC2626;font-size:13px;padding:10px 13px;border-radius:8px;margin-bottom:16px;display:none}
+.error.show{display:block}
+.divider{border:none;border-top:1px solid #E5E7EB;margin:24px 0}
+.hint{font-size:12px;color:#9CA3AF;text-align:center;line-height:1.6}
+.hint strong{color:#6B7280}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="wordmark">Yantriki</div>
+    <div class="sub">Travel Expense Portal</div>
+  </div>
+
+  <div class="error" id="error-msg"></div>
+
+  <div class="field">
+    <label>Username</label>
+    <input type="text" id="username" placeholder="Enter your username" autocomplete="username" />
+  </div>
+  <div class="field">
+    <label>Password</label>
+    <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" />
+  </div>
+
+  <button class="btn" id="login-btn" onclick="login()">Sign in</button>
+
+  <hr class="divider">
+  <div class="hint">
+    <strong>Default dev credentials</strong><br>
+    admin / admin &nbsp;·&nbsp; traveller1 / admin<br>
+    reviewer1 / admin &nbsp;·&nbsp; approver1 / admin
+  </div>
+</div>
+
+<script>
+document.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+
+async function login() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const btn      = document.getElementById('login-btn');
+  const errEl    = document.getElementById('error-msg');
+
+  if (!username || !password) { showError('Enter both username and password'); return; }
+
+  btn.disabled   = true;
+  btn.textContent = 'Signing in…';
+  errEl.classList.remove('show');
+
+  try {
+    const res  = await fetch('/api/auth/login', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok) { showError(data.error || 'Login failed'); return; }
+
+    // Redirect based on role
+    window.location.href = '/app';
+  } catch (err) {
+    showError('Cannot reach server. Is it running?');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Sign in';
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+</script>
+</body>
+</html>

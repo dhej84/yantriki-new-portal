@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yantriki — Travel Expense Portal</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #F2F4F8;
+  --surface: #FFFFFF;
+  --sidebar-bg: #1A1F2E;
+  --sidebar-text: #8B93A7;
+  --sidebar-active: #FFFFFF;
+  --accent: #E8720C;
+  --accent-light: #FEF0E6;
+  --accent-dark: #C45E08;
+  --text-primary: #1A1F2E;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+  --border: #E5E7EB;
+  --border-focus: #E8720C;
+  --row-hover: #FAFBFC;
+  --success: #059669;
+  --success-bg: #ECFDF5;
+  --info: #2563EB;
+  --info-bg: #EFF6FF;
+  --warning: #D97706;
+  --warning-bg: #FFFBEB;
+  --danger: #DC2626;
+  --danger-bg: #FEF2F2;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow: 0 4px 12px rgba(0,0,0,.06);
+  --font: 'Inter', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+}
+
+.sidebar-logo {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.sidebar-logo .wordmark {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -.01em;
+}
+.sidebar-logo .sub {
+  font-size: 11px;
+  color: var(--sidebar-text);
+  margin-top: 2px;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+.sidebar-section {
+  padding: 18px 12px 8px;
+}
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #4B5568;
+  padding: 0 8px;
+  margin-bottom: 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 400;
+  transition: background .12s, color .12s;
+  text-decoration: none;
+  margin-bottom: 1px;
+}
+.nav-item:hover { background: rgba(255,255,255,.06); color: #CBD5E1; }
+.nav-item.active { background: rgba(232,114,12,.15); color: #FDBA74; }
+.nav-item.active .nav-icon { color: var(--accent); }
+.nav-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: .7; }
+.nav-item.active .nav-icon { opacity: 1; }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 14px 12px;
+  border-top: 1px solid rgba(255,255,255,.07);
+}
+.user-pill {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.user-pill:hover { background: rgba(255,255,255,.05); }
+.avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: rgba(232,114,12,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #FDBA74;
+  flex-shrink: 0;
+}
+.user-info .name { font-size: 13px; font-weight: 500; color: #E2E8F0; }
+.user-info .role { font-size: 11px; color: var(--sidebar-text); }
+
+/* ── Main ── */
+.main {
+  margin-left: 220px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.topbar-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+.topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--radius);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  border: 1px solid transparent; transition: all .13s;
+  font-family: var(--font); line-height: 1;
+}
+.btn-ghost {
+  background: transparent; color: var(--text-secondary);
+  border-color: var(--border);
+}
+.btn-ghost:hover { background: var(--bg); color: var(--text-primary); }
+.btn-primary {
+  background: var(--accent); color: #fff;
+  border-color: var(--accent);
+}
+.btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+.btn-success {
+  background: var(--success); color: #fff;
+  border-color: var(--success);
+}
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-icon { padding: 6px; }
+
+.content { padding: 28px; }
+
+/* ── Mode toggle ── */
+.mode-toggle-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mode-toggle-wrap .label-group .primary { font-size: 14px; font-weight: 500; }
+.mode-toggle-wrap .label-group .secondary { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+.mode-switch {
+  display: flex;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 3px;
+}
+.mode-btn {
+  padding: 7px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all .15s;
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--font);
+}
+.mode-btn.active {
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+.mode-btn.active.domestic { color: var(--info); }
+.mode-btn.active.international { color: var(--accent); }
+.mode-dot { width: 6px; height: 6px; border-radius: 50%; }
+.mode-btn.active.domestic .mode-dot { background: var(--info); }
+.mode-btn.active.international .mode-dot { background: var(--accent); }
+
+/* ── Form card ── */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.form-card-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.form-card-title {
+  font-size: 13px; font-weight: 600;
+  color: var(--text-primary);
+  display: flex; align-items: center; gap: 8px;
+}
+.form-card-body { padding: 20px; }
+
+/* ── Form fields ── */
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 16px;
+}
+.field-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.field-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field.span-2 { grid-column: span 2; }
+.field.span-3 { grid-column: span 3; }
+
+.field label {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: .01em;
+}
+.field label .req { color: var(--accent); margin-left: 2px; }
+
+.field input,
+.field select,
+.field textarea {
+  font-family: var(--font);
+  font-size: 13.5px;
+  color: var(--text-primary);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 11px;
+  outline: none;
+  transition: border-color .12s, box-shadow .12s;
+  width: 100%;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(232,114,12,.1);
+}
+.field input.mono { font-family: var(--mono); font-size: 13px; letter-spacing: .02em; }
+.field input[readonly] {
+  background: var(--bg);
+  color: var(--text-secondary);
+}
+.field select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; }
+
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 20px 0;
+}
+
+/* ── Tracking number ── */
+.tracking-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--accent-light);
+  border: 1px solid #FAD4B4;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent-dark);
+}
+.tracking-badge .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+
+/* ── Expense table ── */
+.expense-section { margin-bottom: 16px; }
+.expense-table-wrap { overflow-x: auto; }
+.expense-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.expense-table thead tr {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.expense-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  padding: 9px 10px;
+  white-space: nowrap;
+}
+.expense-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.expense-table tbody tr:hover { background: var(--row-hover); }
+.expense-table tbody tr:last-child td { border-bottom: none; }
+
+.expense-table input,
+.expense-table select {
+  font-family: var(--font);
+  font-size: 12.5px;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  padding: 5px 7px;
+  outline: none;
+  width: 100%;
+  transition: border-color .1s, background .1s;
+}
+.expense-table input:hover,
+.expense-table select:hover { background: var(--bg); border-color: var(--border); }
+.expense-table input:focus,
+.expense-table select:focus {
+  background: #fff;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px rgba(232,114,12,.1);
+}
+.expense-table select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; padding-right: 22px; }
+
+.col-date { min-width: 110px; }
+.col-desc { min-width: 200px; }
+.col-mode { min-width: 130px; }
+.col-bill { min-width: 100px; }
+.col-inr  { min-width: 100px; }
+.col-curr { min-width: 70px; }
+.col-foreign { min-width: 100px; }
+.col-rate { min-width: 90px; }
+.col-converted { min-width: 100px; }
+.col-ccref { min-width: 110px; }
+.col-remark { min-width: 130px; }
+.col-attach { min-width: 90px; }
+.col-del { width: 36px; }
+
+/* FX columns visibility */
+.fx-col { transition: opacity .2s; }
+body.mode-domestic .fx-col { display: none; }
+body.mode-international .fx-col { display: table-cell; }
+body.mode-international .domestic-col { display: none; }
+
+.fx-rate-cell {
+  display: flex; align-items: center; gap: 4px;
+}
+.fx-rate-cell input { flex: 1; }
+.fx-badge {
+  font-size: 10px;
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  padding: 2px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.attach-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11.5px; color: var(--info);
+  background: var(--info-bg);
+  border: 1px solid #BFDBFE;
+  border-radius: 5px; padding: 4px 8px;
+  cursor: pointer; white-space: nowrap;
+}
+.attach-btn:hover { background: #DBEAFE; }
+.attach-count { font-weight: 600; }
+
+.del-btn {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: transparent;
+  color: var(--text-muted);
+  border-radius: 5px; cursor: pointer;
+  transition: background .1s, color .1s;
+}
+.del-btn:hover { background: var(--danger-bg); color: var(--danger); }
+
+/* Totals row */
+.totals-row td { font-weight: 600; color: var(--text-primary); background: var(--bg); }
+
+/* ── Totals footer ── */
+.totals-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+.total-item { text-align: right; }
+.total-item .label { font-size: 11px; color: var(--text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+.total-item .value { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-top: 2px; }
+.total-item .value.accent { color: var(--accent); }
+.total-item .words { font-size: 11px; color: var(--text-secondary); margin-top: 2px; font-style: italic; }
+
+/* ── Status bar ── */
+.status-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.status-steps { display: flex; align-items: center; gap: 0; }
+.status-step {
+  display: flex; flex-direction: column; align-items: center;
+  position: relative;
+}
+.status-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 13px; left: calc(50% + 14px);
+  width: calc(100% - 4px);
+  height: 1px;
+  background: var(--border);
+}
+.status-step.done::after { background: var(--success); }
+.step-dot {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  z-index: 1;
+  margin-bottom: 5px;
+}
+.status-step.done .step-dot { background: var(--success); border-color: var(--success); color: #fff; }
+.status-step.active .step-dot { background: var(--accent); border-color: var(--accent); color: #fff; }
+.step-label { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.status-step.done .step-label { color: var(--success); }
+.status-step.active .step-label { color: var(--accent); font-weight: 500; }
+.status-step-gap { width: 60px; height: 1px; background: var(--border); align-self: flex-start; margin-top: 13px; }
+.status-step-gap.done { background: var(--success); }
+
+/* ── Dashboard (submissions list) ── */
+.page { display: none; }
+.page.active { display: block; }
+
+.list-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.list-table thead tr {
+  border-bottom: 1px solid var(--border);
+}
+.list-table th {
+  font-size: 11.5px; font-weight: 600;
+  color: var(--text-secondary);
+  text-align: left; padding: 10px 14px;
+  letter-spacing: .03em;
+}
+.list-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13.5px;
+}
+.list-table tbody tr:hover { background: var(--row-hover); cursor: pointer; }
+.list-table tbody tr:last-child td { border-bottom: none; }
+
+.status-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11.5px; font-weight: 500;
+  padding: 3px 9px; border-radius: 20px;
+}
+.pill-draft { background: #F3F4F6; color: #6B7280; }
+.pill-submitted { background: var(--info-bg); color: var(--info); }
+.pill-returned { background: var(--danger-bg); color: var(--danger); }
+.pill-reviewed { background: var(--warning-bg); color: var(--warning); }
+.pill-approved { background: var(--success-bg); color: var(--success); }
+.pill-paid { background: #F0FDF4; color: #16A34A; }
+
+.type-badge {
+  font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 4px;
+}
+.type-dom { background: var(--info-bg); color: var(--info); }
+.type-int { background: var(--accent-light); color: var(--accent-dark); }
+
+.tracking-mono {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ── Summary cards ── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.summary-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+}
+.summary-card .s-label { font-size: 11.5px; color: var(--text-secondary); font-weight: 500; }
+.summary-card .s-value { font-size: 24px; font-weight: 600; color: var(--text-primary); margin: 4px 0 2px; line-height: 1; }
+.summary-card .s-sub { font-size: 11.5px; color: var(--text-muted); }
+.summary-card.accent-card { border-color: #FAD4B4; background: var(--accent-light); }
+.summary-card.accent-card .s-value { color: var(--accent-dark); }
+
+/* ── Misc ── */
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--text-muted);
+}
+.empty-state .icon { font-size: 32px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; margin-bottom: 16px; }
+
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--text-primary); color: #fff;
+  padding: 12px 18px; border-radius: var(--radius);
+  font-size: 13.5px; font-weight: 500;
+  box-shadow: var(--shadow);
+  transform: translateY(60px); opacity: 0;
+  transition: all .25s cubic-bezier(.34,1.56,.64,1);
+  z-index: 999;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { background: var(--success); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .sidebar { width: 180px; min-width: 180px; }
+  .main { margin-left: 180px; }
+  .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  .field-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body class="mode-domestic">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="wordmark">Yantriki</div>
+    <div class="sub">Travel Expense Portal</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Main</div>
+    <div class="nav-item" onclick="showPage('dashboard')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item active" onclick="showPage('new-trip')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      New Trip
+    </div>
+    <div class="nav-item" onclick="showPage('my-submissions')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      My Submissions
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" onclick="showPage('pending-review')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Pending Review
+      <span class="nav-badge">2</span>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Reports</div>
+    <div class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      All Expenses
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      By Period
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      International
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Admin</div>
+    <div class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Users &amp; Roles
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M6.34 17.66l-1.41 1.41M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M12 2v2M12 20v2"/></svg>
+      Settings
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="avatar">MA</div>
+      <div class="user-info">
+        <div class="name">Malbin Antony</div>
+        <div class="role">Traveller</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main content -->
+<main class="main">
+
+  <!-- ── DASHBOARD PAGE ── -->
+  <div id="page-dashboard" class="page">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Dashboard</div>
+        <div class="topbar-sub">Overview of all travel expense submissions</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary" onclick="showPage('new-trip')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Trip
+        </button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="summary-grid">
+        <div class="summary-card accent-card">
+          <div class="s-label">Total this month</div>
+          <div class="s-value">₹4.2L</div>
+          <div class="s-sub">12 submissions</div>
+        </div>
+        <div class="summary-card">
+          <div class="s-label">Pending review</div>
+          <div class="s-value">2</div>
+          <div class="s-sub">Avg. 1.4 days</div>
+        </div>
+        <div class="summary-card">
+          <div class="s-label">Approved</div>
+          <div class="s-value">8</div>
+          <div class="s-sub">₹3.1L cleared</div>
+        </div>
+        <div class="summary-card">
+          <div class="s-label">International</div>
+          <div class="s-value">3</div>
+          <div class="s-sub">2 currencies</div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-header">
+          <div class="form-card-title">Recent submissions</div>
+          <button class="btn btn-ghost btn-sm">View all</button>
+        </div>
+        <div class="form-card-body" style="padding:0">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>Tracking no.</th>
+                <th>Traveller</th>
+                <th>Customer</th>
+                <th>Route</th>
+                <th>Type</th>
+                <th>Dates</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr onclick="showPage('new-trip')">
+                <td><span class="tracking-mono">YTS-INT-2024-0001</span></td>
+                <td>Malbin Antony</td>
+                <td>ABB India / BIFPCL</td>
+                <td>Bangalore → Bangladesh</td>
+                <td><span class="type-badge type-int">International</span></td>
+                <td style="color:var(--text-secondary);font-size:12.5px">27 May – 9 Jul 2023</td>
+                <td style="font-weight:600">₹2,60,014</td>
+                <td><span class="status-pill pill-approved">● Approved</span></td>
+              </tr>
+              <tr>
+                <td><span class="tracking-mono">YTS-DOM-2024-0002</span></td>
+                <td>Malbin Antony</td>
+                <td>Shree Ganesh Edibles</td>
+                <td>Bangalore → Chandigarh</td>
+                <td><span class="type-badge type-dom">Domestic</span></td>
+                <td style="color:var(--text-secondary);font-size:12.5px">25–26 May 2023</td>
+                <td style="font-weight:600">₹1,164</td>
+                <td><span class="status-pill pill-submitted">● Submitted</span></td>
+              </tr>
+              <tr>
+                <td><span class="tracking-mono">YTS-DOM-2024-0003</span></td>
+                <td>Rakesh R.</td>
+                <td>Internal – Sales</td>
+                <td>Chennai → Mumbai</td>
+                <td><span class="type-badge type-dom">Domestic</span></td>
+                <td style="color:var(--text-secondary);font-size:12.5px">10–12 Jun 2024</td>
+                <td style="font-weight:600">₹18,400</td>
+                <td><span class="status-pill pill-reviewed">● Under review</span></td>
+              </tr>
+              <tr>
+                <td><span class="tracking-mono">YTS-INT-2024-0004</span></td>
+                <td>Hemant K.</td>
+                <td>Takraf India / Site</td>
+                <td>Kochi → Singapore</td>
+                <td><span class="type-badge type-int">International</span></td>
+                <td style="color:var(--text-secondary);font-size:12.5px">1–8 Jun 2024</td>
+                <td style="font-weight:600">₹86,200</td>
+                <td><span class="status-pill pill-draft">○ Draft</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NEW TRIP PAGE ── -->
+  <div id="page-new-trip" class="page active">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">New Trip Expense</div>
+        <div class="topbar-sub">Fill in trip details and add expense line items below</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="saveDraft()">Save draft</button>
+        <button class="btn btn-primary" onclick="submitTrip()">Submit for review →</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- Tracking + Mode toggle -->
+      <div class="mode-toggle-wrap">
+        <div style="display:flex;align-items:center;gap:16px">
+          <div>
+            <div class="tracking-badge">
+              <div class="dot"></div>
+              YTS-DOM-2024-0005
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted)">Auto-generated · Draft</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="label-group" style="text-align:right">
+            <div class="primary" style="font-size:13px;font-weight:500">Trip mode</div>
+            <div class="secondary">Switches expense table columns</div>
+          </div>
+          <div class="mode-switch">
+            <button class="mode-btn domestic active" id="btn-domestic" onclick="setMode('domestic')">
+              <div class="mode-dot"></div> Domestic
+            </button>
+            <button class="mode-btn international" id="btn-intl" onclick="setMode('international')">
+              <div class="mode-dot"></div> International
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trip header -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <div class="form-card-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Trip details
+          </div>
+        </div>
+        <div class="form-card-body">
+          <div class="field-grid">
+            <div class="field">
+              <label>Customer name <span class="req">*</span></label>
+              <input type="text" placeholder="e.g. ABB India Limited" />
+            </div>
+            <div class="field">
+              <label>Customer / end-customer location <span class="req">*</span></label>
+              <input type="text" placeholder="e.g. BIFPCL, Rampal, Bangladesh" />
+            </div>
+            <div class="field">
+              <label>Billable to <span class="req">*</span></label>
+              <select id="billable-select" onchange="toggleBillable(this.value)">
+                <option value="">Select…</option>
+                <option value="customer">Customer billable</option>
+                <option value="internal">Internal</option>
+              </select>
+            </div>
+            <div class="field" id="internal-category-field" style="display:none">
+              <label>Internal category <span class="req">*</span></label>
+              <select>
+                <option value="">Select type…</option>
+                <option>Marketing</option>
+                <option>Sales</option>
+                <option>Customer connect</option>
+                <option>Internal meeting</option>
+                <option>Training</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>PO number <span class="req">*</span></label>
+              <input type="text" placeholder="e.g. PO-08" />
+            </div>
+            <div class="field">
+              <label>PO date <span class="req">*</span></label>
+              <input type="date" />
+            </div>
+            <div class="field">
+              <label>Work order number</label>
+              <input type="text" placeholder="e.g. WO-2024-042" />
+            </div>
+            <div class="field">
+              <label>Work order date</label>
+              <input type="date" />
+            </div>
+            <div class="field">
+              <label>Yantriki invoice no.</label>
+              <input type="text" class="mono" placeholder="e.g. YTS-INV-2024-001" />
+            </div>
+          </div>
+
+          <hr class="section-divider">
+
+          <div class="field-grid">
+            <div class="field">
+              <label>Traveller name <span class="req">*</span></label>
+              <input type="text" value="Malbin Antony" />
+            </div>
+            <div class="field">
+              <label>Vendor code</label>
+              <input type="text" placeholder="e.g. VND-042" />
+            </div>
+            <div class="field">
+              <label>Job order no.</label>
+              <input type="text" placeholder="e.g. JO-2024-007" />
+            </div>
+            <div class="field span-2">
+              <label>Travel route / location <span class="req">*</span></label>
+              <input type="text" placeholder="e.g. Bangalore → Dhaka → Khulna → Bangalore" />
+            </div>
+            <div class="field">
+              <label id="dest-label" style="display:none">Destination country</label>
+              <select id="dest-country" style="display:none">
+                <option value="">Select country…</option>
+                <option>Bangladesh</option>
+                <option>Singapore</option>
+                <option>UAE</option>
+                <option>USA</option>
+                <option>Germany</option>
+                <option>UK</option>
+                <option>Malaysia</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Travel start date <span class="req">*</span></label>
+              <input type="date" id="start-date" onchange="updateDays()" />
+            </div>
+            <div class="field">
+              <label>Travel end date <span class="req">*</span></label>
+              <input type="date" id="end-date" onchange="updateDays()" />
+            </div>
+            <div class="field">
+              <label>Duration</label>
+              <input type="text" id="duration-field" readonly placeholder="Auto-calculated" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expense line items -->
+      <div class="expense-section">
+        <div class="form-card">
+          <div class="form-card-header">
+            <div class="form-card-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              Expense line items
+              <span style="font-size:11px;font-weight:400;color:var(--text-muted)" id="row-count">0 rows</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span id="fx-rate-info" style="display:none;font-size:12px;color:var(--text-secondary);background:var(--accent-light);padding:4px 10px;border-radius:5px;border:1px solid #FAD4B4">
+                <strong>FX rates</strong> — fetched today: 1 BDT = ₹0.70 &nbsp;·&nbsp; 1 USD = ₹83.40
+              </span>
+              <button class="btn btn-ghost btn-sm" onclick="addRow()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add row
+              </button>
+            </div>
+          </div>
+
+          <div class="expense-table-wrap">
+            <table class="expense-table" id="expense-table">
+              <thead>
+                <tr>
+                  <th class="col-date">Date</th>
+                  <th class="col-desc">Description</th>
+                  <th class="col-mode">Mode / category</th>
+                  <th class="col-bill">Bill / PNR no.</th>
+                  <th class="col-inr">Amount (INR)</th>
+                  <th class="col-curr fx-col">Currency</th>
+                  <th class="col-foreign fx-col">Foreign amt.</th>
+                  <th class="col-rate fx-col">FX rate</th>
+                  <th class="col-converted fx-col">Converted INR</th>
+                  <th class="col-ccref fx-col">CC reference</th>
+                  <th class="col-remark">Remarks</th>
+                  <th class="col-attach">Attachments</th>
+                  <th class="col-del"></th>
+                </tr>
+              </thead>
+              <tbody id="expense-rows">
+                <!-- rows injected by JS -->
+              </tbody>
+              <tfoot>
+                <tr class="totals-row" id="totals-row">
+                  <td colspan="4" style="font-size:12px;color:var(--text-secondary)">Total</td>
+                  <td id="total-inr">—</td>
+                  <td class="fx-col"></td>
+                  <td class="fx-col"></td>
+                  <td class="fx-col"></td>
+                  <td class="fx-col" id="total-converted">—</td>
+                  <td class="fx-col"></td>
+                  <td></td><td></td><td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Totals footer -->
+          <div class="totals-footer">
+            <div class="total-item" id="intl-total-block" style="display:none">
+              <div class="label">Man-day charges</div>
+              <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+                <input type="number" placeholder="Days" style="width:64px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:var(--font);" id="manday-count" oninput="calcManday()">
+                <span style="font-size:12px;color:var(--text-secondary)">× ₹8,000</span>
+                <span id="manday-total" style="font-weight:600">₹0</span>
+              </div>
+            </div>
+            <div class="total-item">
+              <div class="label">Total expenses</div>
+              <div class="value accent" id="grand-total">₹0</div>
+              <div class="words" id="total-words"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow status -->
+      <div class="status-bar">
+        <div style="font-size:13px;font-weight:500;color:var(--text-secondary)">Workflow</div>
+        <div class="status-steps" style="gap:8px">
+          <div class="status-step active">
+            <div class="step-dot">1</div>
+            <div class="step-label">Draft</div>
+          </div>
+          <div class="status-step-gap"></div>
+          <div class="status-step">
+            <div class="step-dot">2</div>
+            <div class="step-label">Submitted</div>
+          </div>
+          <div class="status-step-gap"></div>
+          <div class="status-step">
+            <div class="step-dot">3</div>
+            <div class="step-label">Reviewed</div>
+          </div>
+          <div class="status-step-gap"></div>
+          <div class="status-step">
+            <div class="step-dot">4</div>
+            <div class="step-label">Approved</div>
+          </div>
+          <div class="status-step-gap"></div>
+          <div class="status-step">
+            <div class="step-dot">5</div>
+            <div class="step-label">Accounts</div>
+          </div>
+          <div class="status-step-gap"></div>
+          <div class="status-step">
+            <div class="step-dot">6</div>
+            <div class="step-label">Paid</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted)">Reviewer: Unassigned</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── MY SUBMISSIONS PAGE ── -->
+  <div id="page-my-submissions" class="page">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">My Submissions</div>
+        <div class="topbar-sub">All trips you have submitted</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary" onclick="showPage('new-trip')">+ New Trip</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="form-card">
+        <div class="form-card-body" style="padding:0">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>Tracking no.</th>
+                <th>Customer</th>
+                <th>Route</th>
+                <th>Type</th>
+                <th>Submitted</th>
+                <th>Amount (INR)</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="tracking-mono">YTS-INT-2024-0001</span></td>
+                <td>ABB India / BIFPCL</td>
+                <td>Bangalore → Bangladesh</td>
+                <td><span class="type-badge type-int">International</span></td>
+                <td style="color:var(--text-secondary);font-size:12.5px">27 May 2023</td>
+                <td style="font-weight:600">₹2,60,014</td>
+                <td><span class="status-pill pill-approved">● Approved</span></td>
+                <td><button class="btn btn-ghost btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td><span class="tracking-mono">YTS-DOM-2024-0002</span></td>
+                <td>Shree Ganesh Edibles</td>
+                <td>Bangalore → Chandigarh</td>
+                <td><span class="type-badge type-dom">Domestic</span></td>
+                <td style="color:var(--text-secondary);font-size:12.5px">25 May 2023</td>
+                <td style="font-weight:600">₹1,164</td>
+                <td><span class="status-pill pill-returned">● Returned</span></td>
+                <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+              </tr>
+              <tr>
+                <td><span class="tracking-mono">YTS-DOM-2024-0005</span></td>
+                <td>—</td>
+                <td>—</td>
+                <td><span class="type-badge type-dom">Domestic</span></td>
+                <td style="color:var(--text-secondary);font-size:12.5px">—</td>
+                <td style="font-weight:600">₹0</td>
+                <td><span class="status-pill pill-draft">○ Draft</span></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="showPage('new-trip')">Continue</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PENDING REVIEW PAGE ── -->
+  <div id="page-pending-review" class="page">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Pending Review</div>
+        <div class="topbar-sub">Submissions assigned to you for review</div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="form-card">
+        <div class="form-card-body" style="padding:0">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>Tracking no.</th>
+                <th>Traveller</th>
+                <th>Customer</th>
+                <th>Type</th>
+                <th>Submitted</th>
+                <th>Amount</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="tracking-mono">YTS-DOM-2024-0002</span></td>
+                <td>Malbin Antony</td>
+                <td>Shree Ganesh Edibles</td>
+                <td><span class="type-badge type-dom">Domestic</span></td>
+                <td style="color:var(--text-secondary);font-size:12.5px">25 May 2023</td>
+                <td style="font-weight:600">₹1,164</td>
+                <td style="display:flex;gap:6px">
+                  <button class="btn btn-success btn-sm">Accept</button>
+                  <button class="btn btn-ghost btn-sm" style="color:var(--danger);border-color:#FECACA">Return</button>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="tracking-mono">YTS-DOM-2024-0003</span></td>
+                <td>Rakesh R.</td>
+                <td>Internal – Sales</td>
+                <td><span class="type-badge type-dom">Domestic</span></td>
+                <td style="color:var(--text-secondary);font-size:12.5px">10 Jun 2024</td>
+                <td style="font-weight:600">₹18,400</td>
+                <td style="display:flex;gap:6px">
+                  <button class="btn btn-success btn-sm">Accept</button>
+                  <button class="btn btn-ghost btn-sm" style="color:var(--danger);border-color:#FECACA">Return</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// FX rates (will come from API in production)
+const FX = { BDT: 0.70, USD: 83.40, EUR: 90.10, SGD: 61.80, AED: 22.70, GBP: 106.40 };
+
+let rowCounter = 0;
+let currentMode = 'domestic';
+
+function setMode(mode) {
+  currentMode = mode;
+  document.body.classList.remove('mode-domestic','mode-international');
+  document.body.classList.add('mode-' + mode);
+  document.getElementById('btn-domestic').classList.toggle('active', mode === 'domestic');
+  document.getElementById('btn-intl').classList.toggle('active', mode === 'international');
+
+  // tracking number prefix
+  const badge = document.querySelector('.tracking-badge');
+  if (badge) {
+    const txt = badge.childNodes[1];
+    if (txt) txt.textContent = mode === 'domestic' ? 'YTS-DOM-2024-0005' : 'YTS-INT-2024-0005';
+  }
+
+  // FX info bar
+  document.getElementById('fx-rate-info').style.display = mode === 'international' ? 'flex' : 'none';
+
+  // destination country field
+  document.getElementById('dest-label').style.display = mode === 'international' ? 'block' : 'none';
+  document.getElementById('dest-country').style.display = mode === 'international' ? 'block' : 'none';
+
+  // man-day block
+  document.getElementById('intl-total-block').style.display = mode === 'international' ? 'block' : 'none';
+
+  updateTotals();
+}
+
+const MODES = ['Flight','Taxi','Train','Bus','Hotel','Food','Mobile bill','Internet','Immigration','Insurance','Other'];
+
+function addRow(data) {
+  rowCounter++;
+  const id = rowCounter;
+  const tbody = document.getElementById('expense-rows');
+  const tr = document.createElement('tr');
+  tr.id = 'row-' + id;
+  tr.innerHTML = `
+    <td class="col-date"><input type="date" onchange="updateTotals()" /></td>
+    <td class="col-desc"><input type="text" placeholder="Description" style="min-width:160px" /></td>
+    <td class="col-mode">
+      <select>
+        <option value="">Select…</option>
+        ${MODES.map(m=>`<option>${m}</option>`).join('')}
+      </select>
+    </td>
+    <td class="col-bill"><input type="text" placeholder="e.g. II013427" /></td>
+    <td class="col-inr"><input type="number" placeholder="0.00" min="0" step="0.01" oninput="updateTotals()" style="text-align:right" /></td>
+    <td class="col-curr fx-col">
+      <select onchange="applyFX(${id})">
+        <option value="">INR</option>
+        ${Object.keys(FX).map(c=>`<option>${c}</option>`).join('')}
+      </select>
+    </td>
+    <td class="col-foreign fx-col"><input type="number" placeholder="0.00" min="0" step="0.01" oninput="applyFX(${id})" id="foreign-${id}" style="text-align:right" /></td>
+    <td class="col-rate fx-col">
+      <div class="fx-rate-cell">
+        <input type="number" placeholder="rate" step="0.0001" id="rate-${id}" oninput="applyFX(${id})" style="text-align:right" />
+      </div>
+    </td>
+    <td class="col-converted fx-col"><input type="number" placeholder="0.00" readonly id="converted-${id}" style="text-align:right;background:var(--bg);color:var(--text-secondary)" /></td>
+    <td class="col-ccref fx-col"><input type="text" placeholder="CC ref" /></td>
+    <td class="col-remark"><input type="text" placeholder="Notes" /></td>
+    <td class="col-attach">
+      <button class="attach-btn" onclick="handleAttach(${id})">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        <span class="attach-count" id="attach-count-${id}">Add</span>
+      </button>
+    </td>
+    <td class="col-del">
+      <button class="del-btn" onclick="removeRow(${id})" title="Remove row">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      </button>
+    </td>
+  `;
+  tbody.appendChild(tr);
+  updateRowCount();
+  updateTotals();
+}
+
+function applyFX(id) {
+  const currSelect = document.querySelector(`#row-${id} .col-curr select`);
+  const curr = currSelect ? currSelect.value : '';
+  const foreign = parseFloat(document.getElementById('foreign-' + id)?.value) || 0;
+  const rateInput = document.getElementById('rate-' + id);
+  const convertedInput = document.getElementById('converted-' + id);
+
+  if (curr && FX[curr] && rateInput && !rateInput.value) {
+    rateInput.value = FX[curr].toFixed(4);
+  }
+  const rate = parseFloat(rateInput?.value) || 0;
+  if (convertedInput) {
+    convertedInput.value = foreign && rate ? (foreign * rate).toFixed(2) : '';
+  }
+
+  // also set the INR column
+  const inrInput = document.querySelector(`#row-${id} .col-inr input`);
+  if (inrInput && curr) {
+    inrInput.value = foreign && rate ? (foreign * rate).toFixed(2) : inrInput.value;
+  }
+  updateTotals();
+}
+
+function removeRow(id) {
+  const row = document.getElementById('row-' + id);
+  if (row) row.remove();
+  updateRowCount();
+  updateTotals();
+}
+
+function updateRowCount() {
+  const count = document.getElementById('expense-rows').children.length;
+  document.getElementById('row-count').textContent = count + (count === 1 ? ' row' : ' rows');
+}
+
+function updateTotals() {
+  const rows = document.querySelectorAll('#expense-rows tr');
+  let totalINR = 0;
+  let totalConverted = 0;
+
+  rows.forEach(row => {
+    const inrInput = row.querySelector('.col-inr input');
+    totalINR += parseFloat(inrInput?.value) || 0;
+
+    const convertedInput = row.querySelector('.col-converted input');
+    if (convertedInput && convertedInput.value) {
+      totalConverted += parseFloat(convertedInput.value) || 0;
+    }
+  });
+
+  document.getElementById('total-inr').textContent = totalINR ? '₹' + totalINR.toLocaleString('en-IN', {minimumFractionDigits:2}) : '—';
+  document.getElementById('total-converted').textContent = totalConverted ? '₹' + totalConverted.toLocaleString('en-IN', {minimumFractionDigits:2}) : '—';
+
+  const mandayTotal = parseInt(document.getElementById('manday-count')?.value || 0) * 8000;
+  const grand = (currentMode === 'international' ? totalConverted : totalINR) + mandayTotal;
+  document.getElementById('grand-total').textContent = '₹' + grand.toLocaleString('en-IN', {minimumFractionDigits:2});
+
+  if (grand > 0) {
+    document.getElementById('total-words').textContent = numberToWords(Math.round(grand)) + ' only';
+  } else {
+    document.getElementById('total-words').textContent = '';
+  }
+}
+
+function calcManday() {
+  document.getElementById('manday-total').textContent = '₹' + (parseInt(document.getElementById('manday-count').value || 0) * 8000).toLocaleString('en-IN');
+  updateTotals();
+}
+
+function handleAttach(id) {
+  const countEl = document.getElementById('attach-count-' + id);
+  const current = parseInt(countEl.textContent) || 0;
+  countEl.textContent = current + 1;
+  showToast('File attached (' + (current + 1) + ' total)');
+}
+
+function toggleBillable(val) {
+  document.getElementById('internal-category-field').style.display = val === 'internal' ? 'flex' : 'none';
+}
+
+function updateDays() {
+  const s = new Date(document.getElementById('start-date').value);
+  const e = new Date(document.getElementById('end-date').value);
+  if (s && e && e >= s) {
+    const days = Math.ceil((e - s) / 86400000) + 1;
+    document.getElementById('duration-field').value = days + ' day' + (days > 1 ? 's' : '');
+  }
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const map = {'dashboard':0,'new-trip':1,'my-submissions':2,'pending-review':3};
+  document.querySelectorAll('.nav-item')[map[name]]?.classList.add('active');
+}
+
+function saveDraft() { showToast('Draft saved — YTS-DOM-2024-0005', 'success'); }
+function submitTrip() { showToast('Submitted for review! Reviewer notified by email.', 'success'); }
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type ? ' ' + type : '');
+  void t.offsetWidth;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// Number to words (INR)
+function numberToWords(n) {
+  if (n === 0) return 'Zero rupees';
+  const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function h(num) {
+    if (num === 0) return '';
+    if (num < 20) return ones[num] + ' ';
+    if (num < 100) return tens[Math.floor(num/10)] + (num%10 ? ' ' + ones[num%10] : '') + ' ';
+    return ones[Math.floor(num/100)] + ' Hundred ' + h(num%100);
+  }
+  let result = '';
+  const cr = Math.floor(n/10000000); n %= 10000000;
+  const lac = Math.floor(n/100000); n %= 100000;
+  const th = Math.floor(n/1000); n %= 1000;
+  if (cr) result += h(cr) + 'Crore ';
+  if (lac) result += h(lac) + 'Lakh ';
+  if (th) result += h(th) + 'Thousand ';
+  result += h(n);
+  return ('Indian Rupees ' + result.trim()).replace(/\s+/g,' ');
+}
+
+// Init: add 3 sample rows
+addRow(); addRow(); addRow();
+</script>
+
+<!-- ── API layer ─────────────────────────────────────────── -->
+<script>
+// ── Auth ──────────────────────────────────────────────────
+let currentUser = null;
+
+async function initApp() {
+  try {
+    const res = await fetch('/api/auth/me');
+    if (!res.ok) { window.location.href = '/login'; return; }
+    const data = await res.json();
+    currentUser = data.user;
+    applyRoleUI(currentUser);
+    await loadDashboard();
+    await loadMySubmissions();
+    loadFxRates();
+  } catch (e) {
+    window.location.href = '/login';
+  }
+}
+
+async function apiLogout() {
+  await fetch('/api/auth/logout', { method: 'POST' });
+  window.location.href = '/login';
+}
+
+// ── Role-based UI ─────────────────────────────────────────
+function applyRoleUI(user) {
+  // Update sidebar user pill
+  document.querySelector('.avatar').textContent =
+    user.full_name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  document.querySelector('.user-info .name').textContent = user.full_name;
+  document.querySelector('.user-info .role').textContent =
+    user.role.charAt(0).toUpperCase() + user.role.slice(1);
+
+  // Hide pending review for travellers
+  if (user.role === 'traveller') {
+    document.querySelectorAll('.nav-item')[3].style.display = 'none';
+  }
+}
+
+// ── FX Rates ──────────────────────────────────────────────
+async function loadFxRates() {
+  try {
+    const res  = await fetch('/api/fx');
+    if (!res.ok) return;
+    const data = await res.json();   // { USD: { rate_to_inr: 83.4, fetched_at: ... }, ... }
+    // Merge into local FX object used by the form
+    Object.entries(data).forEach(([code, info]) => { FX[code] = info.rate_to_inr; });
+    // Update info bar text
+    const bar = document.getElementById('fx-rate-info');
+    if (bar) {
+      const parts = Object.entries(data).slice(0, 3)
+        .map(([c, v]) => `1 ${c} = ₹${v.rate_to_inr.toFixed(2)}`);
+      bar.innerHTML = `<strong>FX rates</strong> — live: ${parts.join(' &nbsp;·&nbsp; ')}`;
+    }
+  } catch (e) { /* silently use defaults */ }
+}
+
+// ── Dashboard ─────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const res   = await fetch('/api/trips');
+    if (!res.ok) return;
+    const trips = await res.json();
+
+    // Summary cards
+    const thisMonth = trips.filter(t => {
+      const d = new Date(t.created_at);
+      const n = new Date();
+      return d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear();
+    });
+    const totalAmt  = thisMonth.reduce((s, t) => s + Number(t.grand_total_inr || 0), 0);
+    const pending   = trips.filter(t => ['submitted','returned'].includes(t.status)).length;
+    const approved  = trips.filter(t => t.status === 'approved').length;
+    const intl      = trips.filter(t => t.trip_type === 'international').length;
+
+    const cards = document.querySelectorAll('.summary-card .s-value');
+    if (cards[0]) cards[0].textContent = '₹' + fmtLakh(totalAmt);
+    if (cards[1]) cards[1].textContent = pending;
+    if (cards[2]) cards[2].textContent = approved;
+    if (cards[3]) cards[3].textContent = intl;
+
+    // Recent trips table
+    const tbody = document.querySelector('#page-dashboard .list-table tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    trips.slice(0, 8).forEach(t => {
+      const tr = document.createElement('tr');
+      tr.style.cursor = 'pointer';
+      tr.onclick = () => openTrip(t.id);
+      tr.innerHTML = `
+        <td><span class="tracking-mono">${t.tracking_no}</span></td>
+        <td>${t.traveller_name}</td>
+        <td>${t.customer_name || '—'}</td>
+        <td>${t.travel_route || '—'}</td>
+        <td><span class="type-badge ${t.trip_type === 'international' ? 'type-int' : 'type-dom'}">${t.trip_type === 'international' ? 'International' : 'Domestic'}</span></td>
+        <td style="color:var(--text-secondary);font-size:12.5px">${fmtDate(t.travel_start_date)}</td>
+        <td style="font-weight:600">₹${Number(t.grand_total_inr || 0).toLocaleString('en-IN')}</td>
+        <td>${statusPill(t.status)}</td>`;
+      tbody.appendChild(tr);
+    });
+  } catch (e) { console.error(e); }
+}
+
+// ── My Submissions ────────────────────────────────────────
+async function loadMySubmissions() {
+  try {
+    const res   = await fetch('/api/trips');
+    if (!res.ok) return;
+    const trips = await res.json();
+
+    const tbody = document.querySelector('#page-my-submissions .list-table tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    trips.forEach(t => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><span class="tracking-mono">${t.tracking_no}</span></td>
+        <td>${t.customer_name || '—'}</td>
+        <td>${t.travel_route || '—'}</td>
+        <td><span class="type-badge ${t.trip_type === 'international' ? 'type-int' : 'type-dom'}">${t.trip_type === 'international' ? 'International' : 'Domestic'}</span></td>
+        <td style="color:var(--text-secondary);font-size:12.5px">${fmtDate(t.created_at)}</td>
+        <td style="font-weight:600">₹${Number(t.grand_total_inr || 0).toLocaleString('en-IN')}</td>
+        <td>${statusPill(t.status)}</td>
+        <td>${actionBtn(t)}</td>`;
+      tbody.appendChild(tr);
+    });
+
+    // Update badge count
+    const badge = document.querySelectorAll('.nav-badge')[0];
+    if (badge) badge.textContent = trips.length;
+  } catch (e) { console.error(e); }
+}
+
+// ── Pending Review ────────────────────────────────────────
+async function loadPendingReview() {
+  try {
+    const res   = await fetch('/api/trips?status=submitted');
+    if (!res.ok) return;
+    const trips = await res.json();
+
+    const tbody = document.querySelector('#page-pending-review .list-table tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    trips.forEach(t => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><span class="tracking-mono">${t.tracking_no}</span></td>
+        <td>${t.traveller_name}</td>
+        <td>${t.customer_name || '—'}</td>
+        <td><span class="type-badge ${t.trip_type === 'international' ? 'type-int' : 'type-dom'}">${t.trip_type === 'international' ? 'International' : 'Domestic'}</span></td>
+        <td style="color:var(--text-secondary);font-size:12.5px">${fmtDate(t.created_at)}</td>
+        <td style="font-weight:600">₹${Number(t.grand_total_inr || 0).toLocaleString('en-IN')}</td>
+        <td style="display:flex;gap:6px">
+          <button class="btn btn-success btn-sm" onclick="doWorkflow(${t.id},'review')">Accept</button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--danger);border-color:#FECACA"
+            onclick="doReturn(${t.id})">Return</button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+
+    const badge = document.querySelectorAll('.nav-badge')[1];
+    if (badge) badge.textContent = trips.length;
+  } catch (e) { console.error(e); }
+}
+
+// ── Save / Submit trip ────────────────────────────────────
+async function saveDraft()   { await saveTrip('draft'); }
+async function submitTrip()  {
+  const id = await saveTrip('draft');
+  if (!id) return;
+  try {
+    const res = await fetch(`/api/workflow/${id}/submit`, { method: 'POST' });
+    if (res.ok) {
+      showToast('Submitted! Reviewer notified by email.', 'success');
+      await loadDashboard();
+      await loadMySubmissions();
+    }
+  } catch (e) { showToast('Submit failed'); }
+}
+
+async function saveTrip(status) {
+  const lines = collectLines();
+  const body  = {
+    trip_type:         currentMode,
+    billable:          document.getElementById('billable-select').value || 'customer',
+    internal_category: document.querySelector('#internal-category-field select')?.value || null,
+    customer_name:     document.querySelectorAll('.field input')[0]?.value || null,
+    customer_location: document.querySelectorAll('.field input')[1]?.value || null,
+    po_number:         document.querySelectorAll('.field input')[2]?.value || null,
+    po_date:           document.querySelectorAll('.field input[type=date]')[0]?.value || null,
+    wo_number:         document.querySelectorAll('.field input')[4]?.value || null,
+    wo_date:           document.querySelectorAll('.field input[type=date]')[1]?.value || null,
+    invoice_number:    document.querySelectorAll('.field input')[6]?.value || null,
+    traveller_name:    document.querySelectorAll('.field input')[7]?.value || null,
+    travel_route:      document.querySelectorAll('.field input')[9]?.value || null,
+    destination_country: document.getElementById('dest-country')?.value || null,
+    travel_start_date: document.getElementById('start-date')?.value || null,
+    travel_end_date:   document.getElementById('end-date')?.value || null,
+    manday_count:      parseInt(document.getElementById('manday-count')?.value) || 0,
+    expense_lines:     lines
+  };
+
+  try {
+    const res  = await fetch('/api/trips', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!res.ok) { showToast(data.error || 'Save failed'); return null; }
+
+    // Update tracking badge
+    const badge = document.querySelector('.tracking-badge');
+    if (badge) badge.childNodes[1].textContent = data.tracking_no;
+
+    showToast('Draft saved — ' + data.tracking_no, 'success');
+    return data.id;
+  } catch (e) {
+    showToast('Save failed — is the server running?');
+    return null;
+  }
+}
+
+function collectLines() {
+  const rows  = document.querySelectorAll('#expense-rows tr');
+  const lines = [];
+  rows.forEach(row => {
+    lines.push({
+      expense_date:         row.querySelector('.col-date input')?.value || null,
+      description:          row.querySelector('.col-desc input')?.value || null,
+      mode:                 row.querySelector('.col-mode select')?.value || null,
+      bill_no:              row.querySelector('.col-bill input')?.value || null,
+      amount_inr:           parseFloat(row.querySelector('.col-inr input')?.value) || 0,
+      currency_code:        row.querySelector('.col-curr select')?.value || 'INR',
+      amount_foreign:       parseFloat(row.querySelector('.col-foreign input')?.value) || null,
+      fx_rate:              parseFloat(row.querySelector('.col-rate input')?.value) || null,
+      amount_converted_inr: parseFloat(row.querySelector('.col-converted input')?.value) || null,
+      credit_card_ref:      row.querySelector('.col-ccref input')?.value || null,
+      remarks:              row.querySelector('.col-remark input')?.value || null
+    });
+  });
+  return lines;
+}
+
+// ── Workflow actions ──────────────────────────────────────
+async function doWorkflow(tripId, action) {
+  try {
+    const res = await fetch(`/api/workflow/${tripId}/${action}`, { method: 'POST' });
+    if (res.ok) {
+      showToast(action.charAt(0).toUpperCase() + action.slice(1) + ' done!', 'success');
+      loadPendingReview();
+      loadDashboard();
+    }
+  } catch (e) { showToast('Action failed'); }
+}
+
+async function doReturn(tripId) {
+  const comment = prompt('Return reason (required):');
+  if (!comment) return;
+  try {
+    const res = await fetch(`/api/workflow/${tripId}/return`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ comment })
+    });
+    if (res.ok) {
+      showToast('Returned with comment. Traveller notified.', 'success');
+      loadPendingReview();
+    }
+  } catch (e) { showToast('Action failed'); }
+}
+
+function openTrip(id) {
+  showPage('new-trip');
+  showToast('Edit mode for trip #' + id + ' — coming next sprint');
+}
+
+// ── Helpers ───────────────────────────────────────────────
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function fmtLakh(n) {
+  if (n >= 10000000) return (n/10000000).toFixed(1) + 'Cr';
+  if (n >= 100000)   return (n/100000).toFixed(1) + 'L';
+  return n.toLocaleString('en-IN');
+}
+
+function statusPill(s) {
+  const map = {
+    draft:     'pill-draft',
+    submitted: 'pill-submitted',
+    returned:  'pill-returned',
+    reviewed:  'pill-reviewed',
+    approved:  'pill-approved',
+    paid:      'pill-paid'
+  };
+  const labels = {
+    draft:'Draft', submitted:'Submitted', returned:'Returned',
+    reviewed:'Reviewed', approved:'Approved', paid:'Paid'
+  };
+  return `<span class="status-pill ${map[s] || ''}">${s === 'draft' ? '○' : '●'} ${labels[s] || s}</span>`;
+}
+
+function actionBtn(t) {
+  if (t.status === 'draft' || t.status === 'returned')
+    return `<button class="btn btn-ghost btn-sm" onclick="openTrip(${t.id})">Edit</button>`;
+  return `<button class="btn btn-ghost btn-sm" onclick="openTrip(${t.id})">View</button>`;
+}
+
+// Patch showPage to load data on tab switch
+const _origShowPage = showPage;
+window.showPage = function(name) {
+  _origShowPage(name);
+  if (name === 'dashboard')       loadDashboard();
+  if (name === 'my-submissions')  loadMySubmissions();
+  if (name === 'pending-review')  loadPendingReview();
+};
+
+// Add logout to user pill
+document.querySelector('.user-pill').setAttribute('title', 'Click to log out');
+document.querySelector('.user-pill').onclick = () => {
+  if (confirm('Log out?')) apiLogout();
+};
+
+// Boot
+initApp();
+</script>
+</body>
+</html>
