@@ -42,6 +42,7 @@ app.use('/api/files',    fileRoutes);
 // ── Page routes ─────────────────────────────────────────────
 app.get('/login',    (_req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/app',      (_req, res) => res.sendFile(path.join(__dirname, 'public', 'app.html')));
+app.get('/review',   (_req, res) => res.sendFile(path.join(__dirname, 'public', 'review.html')));
 app.get('/',         (_req, res) => res.redirect('/login'));
 
 // ── 404 ─────────────────────────────────────────────────────

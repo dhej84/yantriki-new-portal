@@ -337,6 +337,7 @@ body {
   font-size: 13px;
   font-weight: 500;
   color: var(--accent-dark);
+  white-space: nowrap;
 }
 .tracking-badge .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
 
@@ -806,7 +807,7 @@ body.mode-international .domestic-col { display: none; }
           <div>
             <div class="tracking-badge">
               <div class="dot"></div>
-              YTS-DOM-2024-0005
+              <span>YTS-DOM-2024-0005</span>
             </div>
           </div>
           <div style="font-size:12px;color:var(--text-muted)">Auto-generated · Draft</div>
@@ -1177,7 +1178,7 @@ body.mode-international .domestic-col { display: none; }
 
 <script>
 // FX rates (will come from API in production)
-const FX = { BDT: 0.70, USD: 83.40, EUR: 90.10, SGD: 61.80, AED: 22.70, GBP: 106.40 };
+const FX = { AED: 25.88, BDT: 0.77, CNY: 14.03, EUR: 108.48, GBP: 126.98, JPY: 0.59, KWD: 307.50, LKR: 0.28, MYR: 23.34, OMR: 247.22, QAR: 26.11, SAR: 25.35, SGD: 73.53, THB: 2.85, USD: 95.05 };
 
 let rowCounter = 0;
 let currentMode = 'domestic';
@@ -1190,10 +1191,14 @@ function setMode(mode) {
   document.getElementById('btn-intl').classList.toggle('active', mode === 'international');
 
   // tracking number prefix
-  const badge = document.querySelector('.tracking-badge');
-  if (badge) {
-    const txt = badge.childNodes[1];
-    if (txt) txt.textContent = mode === 'domestic' ? 'YTS-DOM-2024-0005' : 'YTS-INT-2024-0005';
+  const badgeSpan = document.querySelector('.tracking-badge span');
+  if (badgeSpan) {
+    const current = badgeSpan.textContent;
+    if (mode === 'domestic') {
+      badgeSpan.textContent = current.replace('YTS-INT-', 'YTS-DOM-');
+    } else {
+      badgeSpan.textContent = current.replace('YTS-DOM-', 'YTS-INT-');
+    }
   }
 
   // FX info bar
@@ -1302,11 +1307,18 @@ function updateTotals() {
 
   rows.forEach(row => {
     const inrInput = row.querySelector('.col-inr input');
-    totalINR += parseFloat(inrInput?.value) || 0;
-
     const convertedInput = row.querySelector('.col-converted input');
-    if (convertedInput && convertedInput.value) {
-      totalConverted += parseFloat(convertedInput.value) || 0;
+    const currSelect = row.querySelector('.col-curr select');
+    const curr = currSelect ? currSelect.value : '';
+
+    const inr = parseFloat(inrInput?.value) || 0;
+    const converted = parseFloat(convertedInput?.value) || 0;
+
+    totalINR += inr;
+    if (curr && curr !== 'INR') {
+      totalConverted += converted;
+    } else {
+      totalConverted += inr;
     }
   });
 
@@ -1609,7 +1621,10 @@ async function saveTrip(status) {
 
     // Update tracking badge
     const badge = document.querySelector('.tracking-badge');
-    if (badge) badge.childNodes[1].textContent = data.tracking_no;
+    if (badge) {
+      const txt = badge.querySelector('span');
+      if (txt) txt.textContent = data.tracking_no;
+    }
 
     showToast('Draft saved — ' + data.tracking_no, 'success');
     return data.id;
@@ -1669,8 +1684,7 @@ async function doReturn(tripId) {
 }
 
 function openTrip(id) {
-  showPage('new-trip');
-  showToast('Edit mode for trip #' + id + ' — coming next sprint');
+  window.location.href = '/review?id=' + id;
 }
 
 // ── Helpers ───────────────────────────────────────────────
