@@ -105,18 +105,23 @@ router.post('/:id/review', requireRole('reviewer','admin'), async (req, res) => 
 router.post('/:id/approve', requireRole('approver','admin'), async (req, res) => {
   const user = req.session.user;
   try {
+    console.log('APPROVE HIT — trip:', req.params.id, 'user:', user.username);
     await db.query(
       'UPDATE trips SET approved_by = $1, approved_date = NOW() WHERE id = $2',
       [user.full_name, req.params.id]
     );
+    console.log('APPROVE DB UPDATE DONE');
     const trip = await transition(req.params.id, user.id, user.full_name, 'approved', req.body.comment || null, res);
+    console.log('APPROVE TRANSITION DONE', trip?.status);
     if (!trip) return;
 
     const recipients = await getAccountsAndDirectors();
+    console.log('APPROVE RECIPIENTS:', recipients);
     await mailer.onTripApproved(trip, recipients).catch(console.error);
 
     res.json(trip);
   } catch (err) {
+    console.error('APPROVE ERROR:', err);
     res.status(500).json({ error: err.message });
   }
 });

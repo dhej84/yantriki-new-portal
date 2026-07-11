@@ -1544,7 +1544,8 @@ async function loadMySubmissions() {
 // ── Pending Review ────────────────────────────────────────
 async function loadPendingReview() {
   try {
-    const res   = await fetch('/api/trips?status=submitted');
+    const status = ['approver','admin'].includes(currentUser.role) ? 'reviewed' : 'submitted';
+    const res   = await fetch(`/api/trips?status=${status}`);
     if (!res.ok) return;
     const trips = await res.json();
 
@@ -1561,7 +1562,7 @@ async function loadPendingReview() {
         <td style="color:var(--text-secondary);font-size:12.5px">${fmtDate(t.created_at)}</td>
         <td style="font-weight:600">₹${Number(t.grand_total_inr || 0).toLocaleString('en-IN')}</td>
         <td style="display:flex;gap:6px">
-          <button class="btn btn-success btn-sm" onclick="doWorkflow(${t.id},'review')">Accept</button>
+          <button class="btn btn-success btn-sm" onclick="doWorkflow(${t.id}, currentUser.role === 'approver' ? 'approve' : 'review')">Accept</button>
           <button class="btn btn-ghost btn-sm" style="color:var(--danger);border-color:#FECACA"
             onclick="doReturn(${t.id})">Return</button>
         </td>`;
