@@ -10,6 +10,7 @@
  */
 
 const BASE = 'http://localhost:3000';
+const fetch = require('node-fetch');
 
 let cookies = {};        // session cookies per user
 let createdTripId = null;
@@ -48,7 +49,7 @@ async function req(method, path, body, user) {
     body: body ? JSON.stringify(body) : undefined
   });
 
-  // Capture Set-Cookie
+  // Capture Set-Cookie and preserve session cookies across requests
   const setCookie = res.headers.get('set-cookie');
   if (setCookie && user) {
     cookies[user] = setCookie.split(';')[0];
@@ -56,7 +57,7 @@ async function req(method, path, body, user) {
 
   let data;
   try { data = await res.json(); } catch { data = {}; }
-  return { status: res.status, data };
+  return { status: res.status, data, headers: res.headers };
 }
 
 function expect(condition, label, detail) {
@@ -73,19 +74,19 @@ async function testAuth() {
   expect(r.status === 401, 'Rejects bad credentials', `status ${r.status}`);
 
   // Traveller login
-  r = await req('POST', '/api/auth/login', { username: 'traveller1', password: 'admin' }, 'traveller');
+  r = await req('POST', '/api/auth/login', { username: 'traveller1', password: 'admin123' }, 'traveller');
   expect(r.status === 200 && r.data.user?.role === 'traveller', 'Traveller login', `role=${r.data.user?.role}`);
 
   // Reviewer login
-  r = await req('POST', '/api/auth/login', { username: 'reviewer1', password: 'admin' }, 'reviewer');
+  r = await req('POST', '/api/auth/login', { username: 'reviewer1', password: 'admin123' }, 'reviewer');
   expect(r.status === 200 && r.data.user?.role === 'reviewer', 'Reviewer login', `role=${r.data.user?.role}`);
 
   // Approver login
-  r = await req('POST', '/api/auth/login', { username: 'approver1', password: 'admin' }, 'approver');
+  r = await req('POST', '/api/auth/login', { username: 'approver1', password: 'admin123' }, 'approver');
   expect(r.status === 200 && r.data.user?.role === 'approver', 'Approver login', `role=${r.data.user?.role}`);
 
   // Accounts login
-  r = await req('POST', '/api/auth/login', { username: 'accounts1', password: 'admin' }, 'accounts');
+  r = await req('POST', '/api/auth/login', { username: 'accounts1', password: 'admin123' }, 'accounts');
   expect(r.status === 200, 'Accounts login');
 
   // /me endpoint

@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yantriki — Trip Review</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg:#F2F4F8; --surface:#FFFFFF; --sidebar-bg:#1A1F2E;
+  --sidebar-text:#8B93A7; --accent:#E8720C; --accent-light:#FEF0E6;
+  --accent-dark:#C45E08; --text-primary:#1A1F2E; --text-secondary:#6B7280;
+  --text-muted:#9CA3AF; --border:#E5E7EB; --border-focus:#E8720C;
+  --success:#059669; --success-bg:#ECFDF5;
+  --info:#2563EB; --info-bg:#EFF6FF;
+  --warning:#D97706; --warning-bg:#FFFBEB;
+  --danger:#DC2626; --danger-bg:#FEF2F2;
+  --radius:8px; --radius-lg:12px;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06);
+  --font:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font-size:14px;line-height:1.5;display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{width:220px;min-width:220px;background:var(--sidebar-bg);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100}
+.sidebar-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sidebar-logo .wordmark{font-size:15px;font-weight:600;color:#fff;letter-spacing:-.01em}
+.sidebar-logo .sub{font-size:11px;color:var(--sidebar-text);margin-top:2px;letter-spacing:.02em;text-transform:uppercase}
+.sidebar-section{padding:18px 12px 8px}
+.sidebar-section-label{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#4B5568;padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;color:var(--sidebar-text);cursor:pointer;font-size:13.5px;margin-bottom:1px;transition:background .12s,color .12s}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#CBD5E1}
+.nav-item.active{background:rgba(232,114,12,.15);color:#FDBA74}
+.nav-item.active .nav-icon{color:var(--accent)}
+.nav-icon{width:16px;height:16px;flex-shrink:0;opacity:.7}
+.nav-item.active .nav-icon{opacity:1}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,.07)}
+.user-pill{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;cursor:pointer}
+.user-pill:hover{background:rgba(255,255,255,.05)}
+.avatar{width:30px;height:30px;border-radius:50%;background:rgba(232,114,12,.25);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#FDBA74;flex-shrink:0}
+.user-info .name{font-size:13px;font-weight:500;color:#E2E8F0}
+.user-info .role{font-size:11px;color:var(--sidebar-text)}
+
+/* Main */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--text-secondary);font-size:13px;cursor:pointer;padding:6px 10px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;transition:all .12s;font-family:var(--font)}
+.back-btn:hover{background:var(--bg);color:var(--text-primary)}
+.topbar-title{font-size:16px;font-weight:600}
+.topbar-sub{font-size:12px;color:var(--text-secondary);margin-top:1px}
+.content{padding:28px;max-width:1100px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .13s;font-family:var(--font);line-height:1}
+.btn-ghost{background:transparent;color:var(--text-secondary);border-color:var(--border)}
+.btn-ghost:hover{background:var(--bg);color:var(--text-primary)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:var(--accent-dark)}
+.btn-success{background:var(--success);color:#fff;border-color:var(--success)}
+.btn-success:hover{background:#047857}
+.btn-danger{background:var(--danger);color:#fff;border-color:var(--danger)}
+.btn-danger:hover{background:#B91C1C}
+.btn-warning{background:var(--warning);color:#fff;border-color:var(--warning)}
+.btn-warning:hover{background:#B45309}
+.btn-lg{padding:10px 20px;font-size:14px}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);margin-bottom:16px;overflow:hidden}
+.card-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card-body{padding:20px}
+
+/* Status pill */
+.status-pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:4px 10px;border-radius:20px}
+.pill-draft{background:#F3F4F6;color:#6B7280}
+.pill-submitted{background:var(--info-bg);color:var(--info)}
+.pill-returned{background:var(--danger-bg);color:var(--danger)}
+.pill-reviewed{background:var(--warning-bg);color:var(--warning)}
+.pill-approved{background:var(--success-bg);color:var(--success)}
+.pill-paid{background:#F0FDF4;color:#16A34A}
+
+/* Trip meta grid */
+.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 20px}
+.meta-item .label{font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.meta-item .value{font-size:13.5px;color:var(--text-primary);font-weight:400}
+.meta-item .value.mono{font-family:var(--mono);font-size:13px}
+.meta-item .value.amount{font-size:18px;font-weight:600;color:var(--accent-dark)}
+hr.divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+
+/* Type badge */
+.type-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px}
+.type-dom{background:var(--info-bg);color:var(--info)}
+.type-int{background:var(--accent-light);color:var(--accent-dark)}
+
+/* Expense table */
+.expense-table-wrap{overflow-x:auto}
+.expense-table{width:100%;border-collapse:collapse;font-size:13px}
+.expense-table thead tr{background:var(--bg);border-bottom:1px solid var(--border)}
+.expense-table th{text-align:left;font-size:11px;font-weight:600;color:var(--text-secondary);letter-spacing:.05em;text-transform:uppercase;padding:9px 12px;white-space:nowrap}
+.expense-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.expense-table tbody tr:last-child td{border-bottom:none}
+.expense-table tbody tr:hover{background:#FAFBFC}
+.expense-table tfoot td{font-weight:600;background:var(--bg);padding:10px 12px}
+.attach-link{display:inline-flex;align-items:center;gap:4px;color:var(--info);font-size:12px;cursor:pointer;text-decoration:underline}
+
+/* Total footer */
+.totals-footer{display:flex;justify-content:flex-end;gap:28px;padding:16px 20px;border-top:1px solid var(--border);background:var(--bg)}
+.total-item .label{font-size:11px;color:var(--text-secondary);font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.total-item .value{font-size:20px;font-weight:600;color:var(--text-primary);margin-top:2px}
+.total-item .value.accent{color:var(--accent-dark)}
+.total-item .words{font-size:11px;color:var(--text-secondary);margin-top:2px;font-style:italic}
+
+/* Workflow timeline */
+.timeline{display:flex;flex-direction:column;gap:0}
+.timeline-item{display:flex;gap:14px;position:relative;padding-bottom:20px}
+.timeline-item:last-child{padding-bottom:0}
+.timeline-item:not(:last-child)::before{content:'';position:absolute;left:15px;top:32px;bottom:0;width:1px;background:var(--border)}
+.tl-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:600;border:2px solid var(--border);background:var(--surface);z-index:1}
+.tl-dot.draft{background:#F3F4F6;border-color:#D1D5DB;color:#9CA3AF}
+.tl-dot.submitted{background:var(--info-bg);border-color:var(--info);color:var(--info)}
+.tl-dot.returned{background:var(--danger-bg);border-color:var(--danger);color:var(--danger)}
+.tl-dot.reviewed{background:var(--warning-bg);border-color:var(--warning);color:var(--warning)}
+.tl-dot.approved{background:var(--success-bg);border-color:var(--success);color:var(--success)}
+.tl-dot.paid{background:#F0FDF4;border-color:#16A34A;color:#16A34A}
+.tl-body{flex:1;padding-top:4px}
+.tl-header{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.tl-actor{font-size:13px;font-weight:500;color:var(--text-primary)}
+.tl-action{font-size:12px;color:var(--text-secondary)}
+.tl-time{font-size:11px;color:var(--text-muted);margin-left:auto}
+.tl-comment{font-size:12.5px;color:var(--text-secondary);background:var(--bg);border-radius:6px;padding:8px 11px;margin-top:6px;border-left:2px solid var(--border)}
+
+/* Action panel */
+.action-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px}
+.action-panel .heading{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.action-panel textarea{font-family:var(--font);font-size:13.5px;width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;resize:vertical;min-height:80px;outline:none;color:var(--text-primary);background:var(--surface);transition:border-color .12s}
+.action-panel textarea:focus{border-color:var(--border-focus);box-shadow:0 0 0 3px rgba(232,114,12,.1)}
+.action-panel textarea::placeholder{color:var(--text-muted)}
+.action-buttons{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+
+/* Tracking badge */
+.tracking-badge{display:inline-flex;align-items:center;gap:7px;background:var(--accent-light);border:1px solid #FAD4B4;border-radius:6px;padding:5px 12px;font-family:var(--mono);font-size:13px;font-weight:500;color:var(--accent-dark)}
+.tracking-badge .dot{width:6px;height:6px;background:var(--accent);border-radius:50%}
+
+/* Loading */
+.loading{text-align:center;padding:60px 20px;color:var(--text-muted);font-size:14px}
+.error-state{background:var(--danger-bg);border:1px solid #FECACA;color:var(--danger);padding:14px 18px;border-radius:var(--radius);margin-bottom:16px;display:none}
+.error-state.show{display:block}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text-primary);color:#fff;padding:12px 18px;border-radius:var(--radius);font-size:13.5px;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,.15);transform:translateY(60px);opacity:0;transition:all .25s cubic-bezier(.34,1.56,.64,1);z-index:999}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--success)}
+.toast.danger{background:var(--danger)}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="wordmark">Yantriki</div>
+    <div class="sub">Travel Expense Portal</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Main</div>
+    <div class="nav-item" onclick="window.location.href='/app'">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="window.location.href='/app'">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      My Submissions
+    </div>
+    <div class="nav-item active">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Reviewing
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-pill" onclick="logout()">
+      <div class="avatar" id="user-avatar">—</div>
+      <div class="user-info">
+        <div class="name" id="user-name">Loading…</div>
+        <div class="role" id="user-role"></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="window.location.href='/app'">
+        ← Back
+      </button>
+      <div>
+        <div class="topbar-title" id="page-title">Trip detail</div>
+        <div class="topbar-sub" id="page-sub">Loading…</div>
+      </div>
+    </div>
+    <div id="status-badge"></div>
+  </div>
+
+  <div class="content">
+    <div class="error-state" id="error-msg"></div>
+    <div class="loading" id="loading">Loading trip…</div>
+
+    <!-- Trip content (hidden until loaded) -->
+    <div id="trip-content" style="display:none">
+
+      <!-- Action panel (shown based on role + status) -->
+      <div class="action-panel" id="action-panel" style="display:none">
+        <div class="heading" id="action-heading">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Your action
+        </div>
+        <textarea id="action-comment" placeholder="Add a comment (required when returning)…"></textarea>
+        <div class="action-buttons" id="action-buttons"></div>
+      </div>
+
+      <!-- Trip header -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Trip details
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span id="type-badge"></span>
+            <span class="tracking-badge"><div class="dot"></div><span id="tracking-no">—</span></span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="meta-grid">
+            <div class="meta-item"><div class="label">Customer</div><div class="value" id="m-customer">—</div></div>
+            <div class="meta-item"><div class="label">Location</div><div class="value" id="m-location">—</div></div>
+            <div class="meta-item"><div class="label">Billable</div><div class="value" id="m-billable">—</div></div>
+            <div class="meta-item"><div class="label">PO number</div><div class="value mono" id="m-po">—</div></div>
+            <div class="meta-item"><div class="label">PO date</div><div class="value" id="m-podate">—</div></div>
+            <div class="meta-item"><div class="label">Work order</div><div class="value mono" id="m-wo">—</div></div>
+            <div class="meta-item"><div class="label">Yantriki invoice</div><div class="value mono" id="m-invoice">—</div></div>
+            <div class="meta-item"><div class="label">Vendor code</div><div class="value" id="m-vendor">—</div></div>
+            <div class="meta-item"><div class="label">Job order</div><div class="value" id="m-job">—</div></div>
+          </div>
+          <hr class="divider">
+          <div class="meta-grid">
+            <div class="meta-item"><div class="label">Traveller</div><div class="value" id="m-traveller">—</div></div>
+            <div class="meta-item" style="grid-column:span 2"><div class="label">Route</div><div class="value" id="m-route">—</div></div>
+            <div class="meta-item"><div class="label">Start date</div><div class="value" id="m-start">—</div></div>
+            <div class="meta-item"><div class="label">End date</div><div class="value" id="m-end">—</div></div>
+            <div class="meta-item"><div class="label">Duration</div><div class="value" id="m-duration">—</div></div>
+            <div class="meta-item" id="m-country-row" style="display:none"><div class="label">Destination country</div><div class="value" id="m-country">—</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expense lines -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Expense line items
+          </div>
+          <span id="line-count" style="font-size:12px;color:var(--text-muted)"></span>
+        </div>
+        <div class="expense-table-wrap">
+          <table class="expense-table">
+            <thead id="expense-thead"></thead>
+            <tbody id="expense-tbody"></tbody>
+            <tfoot id="expense-tfoot"></tfoot>
+          </table>
+        </div>
+        <div class="totals-footer">
+          <div class="total-item" id="manday-block" style="display:none">
+            <div class="label">Man-day charges</div>
+            <div class="value" id="t-manday">—</div>
+          </div>
+          <div class="total-item">
+            <div class="label">Grand total</div>
+            <div class="value accent" id="t-grand">—</div>
+            <div class="words" id="t-words"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attachments -->
+      <div class="card" id="attachments-card" style="display:none">
+        <div class="card-header">
+          <div class="card-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            Attachments
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="attachments-list" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+
+      <!-- Workflow timeline -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Workflow history
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="timeline" id="workflow-timeline"></div>
+        </div>
+      </div>
+
+    </div><!-- /trip-content -->
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentUser = null;
+let currentTrip = null;
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const res  = await fetch('/api/auth/me');
+    if (!res.ok) { window.location.href = '/login'; return; }
+    const data = await res.json();
+    currentUser = data.user;
+
+    document.getElementById('user-avatar').textContent =
+      currentUser.full_name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    document.getElementById('user-name').textContent  = currentUser.full_name;
+    document.getElementById('user-role').textContent  =
+      currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
+
+    const tripId = new URLSearchParams(window.location.search).get('id');
+    if (!tripId) { showError('No trip ID in URL. Go back and try again.'); return; }
+
+    await loadTrip(tripId);
+  } catch (e) {
+    window.location.href = '/login';
+  }
+}
+
+// ── Load trip ─────────────────────────────────────────────────────────────────
+async function loadTrip(id) {
+  try {
+    const res  = await fetch(`/api/trips/${id}`);
+    if (!res.ok) { showError('Trip not found or access denied.'); return; }
+    currentTrip = await res.json();
+
+    document.getElementById('loading').style.display    = 'none';
+    document.getElementById('trip-content').style.display = 'block';
+
+    renderHeader(currentTrip);
+    renderExpenses(currentTrip);
+    renderAttachments(currentTrip.attachments || []);
+    renderTimeline(currentTrip.workflow || []);
+    renderActionPanel(currentTrip);
+  } catch (e) {
+    showError('Failed to load trip: ' + e.message);
+  }
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+function renderHeader(t) {
+  document.getElementById('page-title').textContent = t.tracking_no;
+  document.getElementById('page-sub').textContent   =
+    `${t.traveller_name} · ${t.customer_name || 'No customer'} · ${fmtDate(t.travel_start_date)} → ${fmtDate(t.travel_end_date)}`;
+  document.getElementById('status-badge').innerHTML = statusPill(t.status);
+  document.getElementById('tracking-no').textContent = t.tracking_no;
+  document.getElementById('type-badge').innerHTML =
+    `<span class="type-badge ${t.trip_type === 'international' ? 'type-int' : 'type-dom'}">${t.trip_type === 'international' ? 'International' : 'Domestic'}</span>`;
+
+  set('m-customer',  t.customer_name);
+  set('m-location',  t.customer_location);
+  set('m-billable',  t.billable === 'customer'
+    ? 'Customer billable'
+    : `Internal — ${t.internal_category || '—'}`);
+  set('m-po',        t.po_number);
+  set('m-podate',    fmtDate(t.po_date));
+  set('m-wo',        t.wo_number || '—');
+  set('m-invoice',   t.invoice_number || '—');
+  set('m-vendor',    t.vendor_code || '—');
+  set('m-job',       t.job_order_no || '—');
+  set('m-traveller', t.traveller_name);
+  set('m-route',     t.travel_route || '—');
+  set('m-start',     fmtDate(t.travel_start_date));
+  set('m-end',       fmtDate(t.travel_end_date));
+
+  const days = t.travel_start_date && t.travel_end_date
+    ? Math.ceil((new Date(t.travel_end_date) - new Date(t.travel_start_date)) / 86400000) + 1
+    : null;
+  set('m-duration', days ? days + ' day' + (days > 1 ? 's' : '') : '—');
+
+  if (t.trip_type === 'international' && t.destination_country) {
+    document.getElementById('m-country-row').style.display = 'block';
+    set('m-country', t.destination_country);
+  }
+}
+
+// ── Expense lines ─────────────────────────────────────────────────────────────
+function renderExpenses(t) {
+  const lines = t.expense_lines || [];
+  const isIntl = t.trip_type === 'international';
+
+  document.getElementById('line-count').textContent = lines.length + ' items';
+
+  // Headers
+  const thead = document.getElementById('expense-thead');
+  thead.innerHTML = `<tr>
+    <th>Date</th><th>Description</th><th>Mode</th><th>Bill / PNR</th>
+    <th>Amount (INR)</th>
+    ${isIntl ? '<th>Currency</th><th>Foreign amt.</th><th>FX rate</th><th>Converted INR</th><th>CC ref</th>' : ''}
+    <th>Remarks</th><th>Attachment</th>
+  </tr>`;
+
+  // Rows
+  const tbody = document.getElementById('expense-tbody');
+  tbody.innerHTML = '';
+  let totalINR = 0;
+  let totalConverted = 0;
+
+  lines.forEach(l => {
+    totalINR       += Number(l.amount_inr || 0);
+    totalConverted += Number(l.amount_converted_inr || 0);
+
+    const attachLink = t.attachments?.find(a => a.expense_line_id === l.id)
+      ? `<span class="attach-link" onclick="downloadFile(${t.attachments.find(a=>a.expense_line_id===l.id).id})">
+           📎 ${t.attachments.find(a=>a.expense_line_id===l.id).file_name}
+         </span>`
+      : '<span style="color:var(--text-muted);font-size:12px">None</span>';
+
+    tbody.innerHTML += `<tr>
+      <td style="white-space:nowrap">${fmtDate(l.expense_date)}</td>
+      <td>${l.description || '—'}</td>
+      <td>${l.mode || '—'}</td>
+      <td style="font-family:var(--mono);font-size:12px">${l.bill_no || '—'}</td>
+      <td style="text-align:right;font-weight:500">
+        ${l.is_advance_deduction
+          ? `<span style="color:var(--danger)">−₹${Math.abs(Number(l.amount_inr)).toLocaleString('en-IN')}</span>`
+          : `₹${Number(l.amount_inr).toLocaleString('en-IN')}`}
+      </td>
+      ${isIntl ? `
+        <td>${l.currency_code || 'INR'}</td>
+        <td style="text-align:right">${l.amount_foreign ? Number(l.amount_foreign).toLocaleString() : '—'}</td>
+        <td style="font-family:var(--mono);font-size:12px">${l.fx_rate ? Number(l.fx_rate).toFixed(4) : '—'}</td>
+        <td style="text-align:right;font-weight:500">${l.amount_converted_inr ? '₹'+Number(l.amount_converted_inr).toLocaleString('en-IN') : '—'}</td>
+        <td style="font-family:var(--mono);font-size:12px">${l.credit_card_ref || '—'}</td>` : ''}
+      <td style="color:var(--text-secondary)">${l.remarks || '—'}</td>
+      <td>${attachLink}</td>
+    </tr>`;
+  });
+
+  // Tfoot
+  const tfoot = document.getElementById('expense-tfoot');
+  tfoot.innerHTML = `<tr>
+    <td colspan="4" style="font-size:12px;color:var(--text-secondary)">Total</td>
+    <td style="text-align:right">₹${totalINR.toLocaleString('en-IN')}</td>
+    ${isIntl ? `<td></td><td></td><td></td><td style="text-align:right">₹${totalConverted.toLocaleString('en-IN')}</td><td></td>` : ''}
+    <td></td><td></td>
+  </tr>`;
+
+  // Grand total
+  const manday = Number(t.manday_count || 0) * Number(t.manday_rate || 8000);
+  if (manday > 0) {
+    document.getElementById('manday-block').style.display = 'block';
+    document.getElementById('t-manday').textContent =
+      `${t.manday_count} days × ₹${Number(t.manday_rate).toLocaleString('en-IN')} = ₹${manday.toLocaleString('en-IN')}`;
+  }
+  document.getElementById('t-grand').textContent = '₹' + Number(t.grand_total_inr || 0).toLocaleString('en-IN');
+  document.getElementById('t-words').textContent = numberToWords(Math.round(Number(t.grand_total_inr || 0))) + ' only';
+}
+
+// ── Attachments ───────────────────────────────────────────────────────────────
+function renderAttachments(attachments) {
+  if (!attachments.length) return;
+  document.getElementById('attachments-card').style.display = 'block';
+  const list = document.getElementById('attachments-list');
+  list.innerHTML = '';
+  attachments.forEach(a => {
+    list.innerHTML += `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span style="font-size:13px">${a.file_name}</span>
+          <span style="font-size:11px;color:var(--text-muted)">${fmtDate(a.uploaded_at)}</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="downloadFile(${a.id})">Download</button>
+      </div>`;
+  });
+}
+
+// ── Workflow timeline ─────────────────────────────────────────────────────────
+function renderTimeline(events) {
+  const tl = document.getElementById('workflow-timeline');
+  if (!events.length) { tl.innerHTML = '<p style="color:var(--text-muted);font-size:13px">No workflow events yet.</p>'; return; }
+
+  const icons = { draft:'D', submitted:'S', returned:'R', reviewed:'V', approved:'A', paid:'P' };
+  tl.innerHTML = events.map(e => `
+    <div class="timeline-item">
+      <div class="tl-dot ${e.to_status}">${icons[e.to_status] || '·'}</div>
+      <div class="tl-body">
+        <div class="tl-header">
+          <span class="tl-actor">${e.actor_name || 'System'}</span>
+          <span class="tl-action">${actionLabel(e.to_status)}</span>
+          <span class="tl-time">${fmtDateTime(e.created_at)}</span>
+        </div>
+        ${e.comment ? `<div class="tl-comment">${e.comment}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+// ── Action panel ──────────────────────────────────────────────────────────────
+function renderActionPanel(t) {
+  const panel   = document.getElementById('action-panel');
+  const heading = document.getElementById('action-heading');
+  const buttons = document.getElementById('action-buttons');
+  const role    = currentUser.role;
+  const status  = t.status;
+
+  buttons.innerHTML = '';
+
+  // Traveller: can submit if draft or returned
+  if (role === 'traveller' && ['draft','returned'].includes(status)) {
+    panel.style.display = 'block';
+    heading.innerHTML   = '⬆ Submit this trip';
+    buttons.innerHTML   = `<button class="btn btn-primary btn-lg" onclick="doAction('submit')">Submit for review →</button>`;
+    return;
+  }
+
+  // Reviewer: can act on submitted
+  if (['reviewer','admin'].includes(role) && status === 'submitted') {
+    panel.style.display = 'block';
+    heading.innerHTML   = '✓ Review this trip';
+    buttons.innerHTML   = `
+      <button class="btn btn-success btn-lg" onclick="doAction('review')">Accept &amp; pass to approver</button>
+      <button class="btn btn-warning btn-lg" onclick="doAction('return')">Return with comments</button>`;
+    return;
+  }
+
+  // Approver: can act on reviewed
+  if (['approver','admin'].includes(role) && status === 'reviewed') {
+    panel.style.display = 'block';
+    heading.innerHTML   = '✓ Approve this trip';
+    buttons.innerHTML   = `
+      <button class="btn btn-success btn-lg" onclick="doAction('approve')">Approve expenses</button>
+      <button class="btn btn-danger btn-lg" onclick="doAction('return')">Return with comments</button>`;
+    return;
+  }
+
+  // Accounts / Director: can mark paid
+  if (['accounts','director','admin'].includes(role) && status === 'approved') {
+    panel.style.display = 'block';
+    heading.innerHTML   = '💳 Mark as paid';
+    buttons.innerHTML   = `<button class="btn btn-success btn-lg" onclick="doAction('paid')">Mark as paid</button>`;
+    return;
+  }
+}
+
+// ── Workflow actions ──────────────────────────────────────────────────────────
+async function doAction(action) {
+  const comment = document.getElementById('action-comment').value.trim();
+
+  if (action === 'return' && !comment) {
+    showToast('Please add a comment before returning.', 'danger');
+    document.getElementById('action-comment').focus();
+    return;
+  }
+
+  const endpoint = action === 'submit'
+    ? `/api/workflow/${currentTrip.id}/submit`
+    : `/api/workflow/${currentTrip.id}/${action}`;
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comment: comment || null })
+    });
+    const data = await res.json();
+    if (!res.ok) { showToast(data.error || 'Action failed', 'danger'); return; }
+
+    showToast(actionLabel(action === 'submit' ? 'submitted' : action) + ' — emails sent!', 'success');
+
+    // Reload trip to show updated state
+    setTimeout(() => loadTrip(currentTrip.id), 800);
+  } catch (e) {
+    showToast('Request failed: ' + e.message, 'danger');
+  }
+}
+
+// ── File download ─────────────────────────────────────────────────────────────
+function downloadFile(attachmentId) {
+  window.open(`/api/files/${attachmentId}`, '_blank');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val || '—';
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function fmtDateTime(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+function statusPill(s) {
+  const map = { draft:'pill-draft', submitted:'pill-submitted', returned:'pill-returned', reviewed:'pill-reviewed', approved:'pill-approved', paid:'pill-paid' };
+  const labels = { draft:'Draft', submitted:'Submitted', returned:'Returned', reviewed:'Reviewed', approved:'Approved', paid:'Paid' };
+  return `<span class="status-pill ${map[s]||''}">${s==='draft'?'○':'●'} ${labels[s]||s}</span>`;
+}
+
+function actionLabel(status) {
+  const map = { draft:'created draft', submitted:'submitted for review', returned:'returned for revision', reviewed:'accepted — passed to approver', approved:'approved', paid:'marked as paid' };
+  return map[status] || status;
+}
+
+function numberToWords(n) {
+  if (!n || n === 0) return 'Zero rupees';
+  const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const tens  = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function h(num) {
+    if (num===0) return '';
+    if (num<20)  return ones[num]+' ';
+    if (num<100) return tens[Math.floor(num/10)]+(num%10?' '+ones[num%10]:'')+' ';
+    return ones[Math.floor(num/100)]+' Hundred '+h(num%100);
+  }
+  let r=''; const cr=Math.floor(n/10000000); n%=10000000;
+  const lac=Math.floor(n/100000); n%=100000;
+  const th=Math.floor(n/1000);    n%=1000;
+  if(cr)  r+=h(cr)+'Crore ';
+  if(lac) r+=h(lac)+'Lakh ';
+  if(th)  r+=h(th)+'Thousand ';
+  r+=h(n);
+  return ('Indian Rupees '+r.trim()).replace(/\s+/g,' ');
+}
+
+function showError(msg) {
+  document.getElementById('loading').style.display = 'none';
+  const el = document.getElementById('error-msg');
+  el.textContent = msg; el.classList.add('show');
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast' + (type ? ' '+type : '');
+  void t.offsetWidth;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+async function logout() {
+  if (!confirm('Log out?')) return;
+  await fetch('/api/auth/logout', { method: 'POST' });
+  window.location.href = '/login';
+}
+
+init();
+</script>
+</body>
+</html>
