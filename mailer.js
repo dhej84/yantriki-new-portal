@@ -45,12 +45,14 @@ async function sendWorkflowEmail({ to, subject, heading, body, trip, actionUrl, 
       <p style="color:#9CA3AF;font-size:12px;text-align:center;margin-top:16px">Yantriki Technocontrol Systems Pvt. Ltd.</p>
     </div>`;
 
+  console.log('MAIL SEND:', { to, subject });
   await transporter.sendMail({
     from: process.env.EMAIL_FROM,
     to,
     subject,
     html
   });
+  console.log('MAIL SENT:', { to, subject });
 }
 
 // Workflow email triggers
