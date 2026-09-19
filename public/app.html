@@ -840,11 +840,11 @@ body.mode-international .domestic-col { display: none; }
           <div class="field-grid">
             <div class="field">
               <label>Customer name <span class="req">*</span></label>
-              <input type="text" placeholder="e.g. ABB India Limited" />
+              <input type="text" id="f-customer-name" placeholder="e.g. ABB India Limited" />
             </div>
             <div class="field">
               <label>Customer / end-customer location <span class="req">*</span></label>
-              <input type="text" placeholder="e.g. BIFPCL, Rampal, Bangladesh" />
+              <input type="text" id="f-customer-location" placeholder="e.g. Bhopal, Madhya Pradesh" />
             </div>
             <div class="field">
               <label>Billable to <span class="req">*</span></label>
@@ -856,7 +856,7 @@ body.mode-international .domestic-col { display: none; }
             </div>
             <div class="field" id="internal-category-field" style="display:none">
               <label>Internal category <span class="req">*</span></label>
-              <select>
+              <select id="f-internal-category">
                 <option value="">Select type…</option>
                 <option>Marketing</option>
                 <option>Sales</option>
@@ -867,23 +867,23 @@ body.mode-international .domestic-col { display: none; }
             </div>
             <div class="field">
               <label>PO number <span class="req">*</span></label>
-              <input type="text" placeholder="e.g. PO-08" />
+              <input type="text" id="f-po-number" placeholder="e.g. PO-08" />
             </div>
             <div class="field">
               <label>PO date <span class="req">*</span></label>
-              <input type="date" />
+              <input type="date" id="f-po-date" />
             </div>
             <div class="field">
               <label>Work order number</label>
-              <input type="text" placeholder="e.g. WO-2024-042" />
+              <input type="text" id="f-wo-number" placeholder="e.g. WO-2024-042" />
             </div>
             <div class="field">
               <label>Work order date</label>
-              <input type="date" />
+              <input type="date" id="f-wo-date" />
             </div>
             <div class="field">
               <label>Yantriki invoice no.</label>
-              <input type="text" class="mono" placeholder="e.g. YTS-INV-2024-001" />
+              <input type="text" id="f-invoice-number" class="mono" placeholder="e.g. YTS-INV-2024-001" />
             </div>
           </div>
 
@@ -892,19 +892,19 @@ body.mode-international .domestic-col { display: none; }
           <div class="field-grid">
             <div class="field">
               <label>Traveller name <span class="req">*</span></label>
-              <input type="text" value="Malbin Antony" />
+              <input type="text" id="f-traveller-name" value="Malbin Antony" />
             </div>
             <div class="field">
               <label>Vendor code</label>
-              <input type="text" placeholder="e.g. VND-042" />
+              <input type="text" id="f-vendor-code" placeholder="e.g. VND-042" />
             </div>
             <div class="field">
               <label>Job order no.</label>
-              <input type="text" placeholder="e.g. JO-2024-007" />
+              <input type="text" id="f-job-order" placeholder="e.g. JO-2024-007" />
             </div>
             <div class="field span-2">
               <label>Travel route / location <span class="req">*</span></label>
-              <input type="text" placeholder="e.g. Bangalore → Dhaka → Khulna → Bangalore" />
+              <input type="text" id="f-travel-route" placeholder="e.g. Bangalore → Dhaka → Khulna → Bangalore" />
             </div>
             <div class="field">
               <label id="dest-label" style="display:none">Destination country</label>
@@ -921,11 +921,11 @@ body.mode-international .domestic-col { display: none; }
             </div>
             <div class="field">
               <label>Travel start date <span class="req">*</span></label>
-              <input type="date" id="start-date" onchange="updateDays()" />
+              <input type="date" id="f-start-date" onchange="updateDays()" />
             </div>
             <div class="field">
               <label>Travel end date <span class="req">*</span></label>
-              <input type="date" id="end-date" onchange="updateDays()" />
+              <input type="date" id="f-end-date" onchange="updateDays()" />
             </div>
             <div class="field">
               <label>Duration</label>
@@ -1353,8 +1353,8 @@ function toggleBillable(val) {
 }
 
 function updateDays() {
-  const s = new Date(document.getElementById('start-date').value);
-  const e = new Date(document.getElementById('end-date').value);
+  const s = new Date(document.getElementById('f-start-date').value);
+  const e = new Date(document.getElementById('f-end-date').value);
   if (s && e && e >= s) {
     const days = Math.ceil((e - s) / 86400000) + 1;
     document.getElementById('duration-field').value = days + ' day' + (days > 1 ? 's' : '');
@@ -1595,18 +1595,20 @@ async function saveTrip(status) {
     trip_type:         currentMode,
     billable:          document.getElementById('billable-select').value || 'customer',
     internal_category: document.querySelector('#internal-category-field select')?.value || null,
-    customer_name:     document.querySelectorAll('.field input')[0]?.value || null,
-    customer_location: document.querySelectorAll('.field input')[1]?.value || null,
-    po_number:         document.querySelectorAll('.field input')[2]?.value || null,
-    po_date:           document.querySelectorAll('.field input[type=date]')[0]?.value || null,
-    wo_number:         document.querySelectorAll('.field input')[4]?.value || null,
-    wo_date:           document.querySelectorAll('.field input[type=date]')[1]?.value || null,
-    invoice_number:    document.querySelectorAll('.field input')[6]?.value || null,
-    traveller_name:    document.querySelectorAll('.field input')[7]?.value || null,
-    travel_route:      document.querySelectorAll('.field input')[9]?.value || null,
+    customer_name:     document.getElementById('f-customer-name')?.value || null,
+    customer_location: document.getElementById('f-customer-location')?.value || null,
+    po_number:         document.getElementById('f-po-number')?.value || null,
+    po_date:           document.getElementById('f-po-date')?.value || null,
+    wo_number:         document.getElementById('f-wo-number')?.value || null,
+    wo_date:           document.getElementById('f-wo-date')?.value || null,
+    invoice_number:    document.getElementById('f-invoice-number')?.value || null,
+    traveller_name:    document.getElementById('f-traveller-name')?.value || null,
+    vendor_code:       document.getElementById('f-vendor-code')?.value || null,
+    job_order:         document.getElementById('f-job-order')?.value || null,
+    travel_route:      document.getElementById('f-travel-route')?.value || null,
     destination_country: document.getElementById('dest-country')?.value || null,
-    travel_start_date: document.getElementById('start-date')?.value || null,
-    travel_end_date:   document.getElementById('end-date')?.value || null,
+    travel_start_date: document.getElementById('f-start-date')?.value || null,
+    travel_end_date:   document.getElementById('f-end-date')?.value || null,
     manday_count:      parseInt(document.getElementById('manday-count')?.value) || 0,
     expense_lines:     lines
   };
