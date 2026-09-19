@@ -885,6 +885,18 @@ body.mode-international .domestic-col { display: none; }
               <label>Yantriki invoice no.</label>
               <input type="text" id="f-invoice-number" class="mono" placeholder="e.g. YTS-INV-2024-001" />
             </div>
+            <div class="field">
+              <label>Assign reviewer</label>
+              <select id="f-reviewer-id">
+                <option value="">Select reviewer…</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Assign approver</label>
+              <select id="f-approver-id">
+                <option value="">Select approver…</option>
+              </select>
+            </div>
           </div>
 
           <hr class="section-divider">
@@ -1422,6 +1434,7 @@ async function initApp() {
     await loadDashboard();
     await loadMySubmissions();
     loadFxRates();
+    loadUsers();
   } catch (e) {
     window.location.href = '/login';
   }
@@ -1463,6 +1476,20 @@ async function loadFxRates() {
       bar.innerHTML = `<strong>FX rates</strong> — live: ${parts.join(' &nbsp;·&nbsp; ')}`;
     }
   } catch (e) { /* silently use defaults */ }
+}
+
+async function loadUsers() {
+  try {
+    const res = await fetch('/api/auth/users');
+    if (!res.ok) return;
+    const users = await res.json();
+    const reviewers = users.filter(u => ['reviewer','approver','admin'].includes(u.role));
+    const approvers = users.filter(u => ['approver','admin'].includes(u.role));
+    const rSel = document.getElementById('f-reviewer-id');
+    const aSel = document.getElementById('f-approver-id');
+    reviewers.forEach(u => { rSel.innerHTML += `<option value="${u.id}">${u.full_name} (${u.role})</option>`; });
+    approvers.forEach(u => { aSel.innerHTML += `<option value="${u.id}">${u.full_name} (${u.role})</option>`; });
+  } catch(e) { console.error(e); }
 }
 
 // ── Dashboard ─────────────────────────────────────────────
@@ -1602,6 +1629,8 @@ async function saveTrip(status) {
     wo_number:         document.getElementById('f-wo-number')?.value || null,
     wo_date:           document.getElementById('f-wo-date')?.value || null,
     invoice_number:    document.getElementById('f-invoice-number')?.value || null,
+    reviewer_id:       parseInt(document.getElementById('f-reviewer-id')?.value) || null,
+    approver_id:       parseInt(document.getElementById('f-approver-id')?.value) || null,
     traveller_name:    document.getElementById('f-traveller-name')?.value || null,
     vendor_code:       document.getElementById('f-vendor-code')?.value || null,
     job_order:         document.getElementById('f-job-order')?.value || null,
