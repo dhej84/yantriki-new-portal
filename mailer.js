@@ -20,7 +20,10 @@ function tripTable(trip) {
 }
 
 async function sendWorkflowEmail({ to, subject, heading, body, trip, actionUrl, actionLabel }) {
-  if (!process.env.RESEND_API_KEY) return; // skip if email not configured
+  if (!process.env.RESEND_API_KEY || !resend) {
+    console.warn('MAIL SKIPPED: RESEND_API_KEY is not set in this service environment');
+    return;
+  }
 
   const html = `
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
