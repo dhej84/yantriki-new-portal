@@ -1,15 +1,7 @@
 require('dotenv').config();
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT) || 587,
-  secure: process.env.EMAIL_SECURE === 'true',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 
@@ -28,7 +20,10 @@ function tripTable(trip) {
 }
 
 async function sendWorkflowEmail({ to, subject, heading, body, trip, actionUrl, actionLabel }) {
-  if (!process.env.EMAIL_USER) return; // skip if email not configured
+  if (!process.env.RESEND_API_KEY || !resend) {
+    console.warn('MAIL SKIPPED: RESEND_API_KEY is not set in this service environment');
+    return;
+  }
 
   const html = `
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
@@ -45,12 +40,14 @@ async function sendWorkflowEmail({ to, subject, heading, body, trip, actionUrl, 
       <p style="color:#9CA3AF;font-size:12px;text-align:center;margin-top:16px">Yantriki Technocontrol Systems Pvt. Ltd.</p>
     </div>`;
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
+  console.log('MAIL SEND:', { to, subject });
+  await resend.emails.send({
+    from: 'onboarding@resend.dev',
     to,
     subject,
     html
   });
+  console.log('MAIL SENT:', { to, subject });
 }
 
 // Workflow email triggers

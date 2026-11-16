@@ -57,7 +57,7 @@ router.post('/:id/submit', requireAuth, async (req, res) => {
     if (!trip) return;
 
     const emails = await getRelatedEmails(req.params.id);
-    await mailer.onTripSubmitted(trip, emails.reviewer_email).catch(console.error);
+    await mailer.onTripSubmitted(trip, emails.reviewer_email).catch(err => console.error('MAIL ERROR:', err));
 
     res.json(trip);
   } catch (err) {
@@ -77,7 +77,7 @@ router.post('/:id/return', requireRole('reviewer','approver','admin'), async (re
     if (!trip) return;
 
     const emails = await getRelatedEmails(req.params.id);
-    await mailer.onTripReturned(trip, emails.traveller_email, comment).catch(console.error);
+    await mailer.onTripReturned(trip, emails.traveller_email, comment).catch(err => console.error('MAIL ERROR:', err));
 
     res.json(trip);
   } catch (err) {
@@ -93,7 +93,7 @@ router.post('/:id/review', requireRole('reviewer','admin'), async (req, res) => 
     if (!trip) return;
 
     const emails = await getRelatedEmails(req.params.id);
-    await mailer.onTripReviewed(trip, emails.approver_email).catch(console.error);
+    await mailer.onTripReviewed(trip, emails.approver_email).catch(err => console.error('MAIL ERROR:', err));
 
     res.json(trip);
   } catch (err) {
@@ -117,7 +117,7 @@ router.post('/:id/approve', requireRole('approver','admin'), async (req, res) =>
 
     const recipients = await getAccountsAndDirectors();
     console.log('APPROVE RECIPIENTS:', recipients);
-    await mailer.onTripApproved(trip, recipients).catch(console.error);
+    await mailer.onTripApproved(trip, recipients).catch(err => console.error('MAIL ERROR:', err));
 
     res.json(trip);
   } catch (err) {
@@ -134,7 +134,7 @@ router.post('/:id/paid', requireRole('accounts','director','admin'), async (req,
     if (!trip) return;
 
     const emails = await getRelatedEmails(req.params.id);
-    await mailer.onTripPaid(trip, emails.traveller_email).catch(console.error);
+    await mailer.onTripPaid(trip, emails.traveller_email).catch(err => console.error('MAIL ERROR:', err));
 
     res.json(trip);
   } catch (err) {
