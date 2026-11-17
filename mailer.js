@@ -41,13 +41,17 @@ async function sendWorkflowEmail({ to, subject, heading, body, trip, actionUrl, 
     </div>`;
 
   console.log('MAIL SEND:', { to, subject });
-  await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from: 'onboarding@resend.dev',
     to,
     subject,
     html
   });
-  console.log('MAIL SENT:', { to, subject });
+  if (error) {
+    console.error('MAIL ERROR (Resend):', JSON.stringify(error));
+    return;
+  }
+  console.log('MAIL SENT:', { to, subject, id: data && data.id });
 }
 
 // Workflow email triggers
